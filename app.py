@@ -14,6 +14,7 @@ app = FastAPI(title="LLM Relay API", version="1.1.0")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 SERVICE_API_KEY = os.getenv("SERVICE_API_KEY")
+SYSTEM_PROMPT = os.getenv("SYSTEM_PROMPT")
 
 if not OPENAI_API_KEY:
     raise RuntimeError("OPENAI_API_KEY environment variable is required")
@@ -27,6 +28,10 @@ llm = ChatOpenAI(
     api_key=OPENAI_API_KEY,
 )
 
+class ChatIn(BaseModel):
+  session_id: str
+  message: str
+  options: dict | None = None
 
 class LLMRequest(BaseModel):
     message: str = Field(..., description="Message to send to the LLM")
@@ -53,13 +58,13 @@ def verify_api_key(x_api_key: str = Header(..., alias="X-API-Key")):
 async def health():
     return {"status": "ok"}
 
-@app.post("/rest")
+@app.post("/chat")
 def chat(body: ChatIn):
   reply = f"Echo: {body.message}"
   return {"id": "abc123", "session_id": body.session_id, "reply": {"text": reply}}  # Response Path: reply.text
 
 
-@app.post("/chat", response_model=LLMResponse, dependencies=[Depends(verify_api_key)])
+@app.post("/chat2", response_model=LLMResponse, dependencies=[Depends(verify_api_key)])
 async def chat(payload: LLMRequest):
     try:
         messages = [
