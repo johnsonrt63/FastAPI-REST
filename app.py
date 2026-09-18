@@ -73,5 +73,5 @@ async def chat(body: ChatIn):
         raise HTTPException(status_code=500, detail=str(error))
     finally:
         reply = f"Echo: {body.message}"
-        return {"id": "abc123", "session_id": body.session_id, "reply": {"text": reply}}  # Response Path: reply.text
+        return {"id": "abc123", "session_id": body.session_id, "reply": {"text": result}}  # Response Path: reply.text
     
