@@ -68,10 +68,11 @@ async def chat(body: ChatIn):
         ]
 
         result = llm.invoke(messages)
+        print(f"Answer is: {result.content}")
         return LLMResponse(response=result.content)
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error))
     finally:
         reply = f"Echo: {body.message}"
-        return {"id": "abc123", "session_id": body.session_id, "reply": {"text": result}}  # Response Path: reply.text
+        return {"id": "abc123", "session_id": body.session_id, "reply": {"text": result.content}}  # Response Path: reply.text
     
