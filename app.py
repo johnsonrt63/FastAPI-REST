@@ -61,6 +61,16 @@ async def health():
 #async def chat(payload: LLMRequest):
 @app.post("/chat")
 async def chat(body: ChatIn):
+    messages = [
+       SystemMessage(content=SYSTEM_PROMPT),
+        HumanMessage(content=body.message),
+    ]
+
+#        result = llm.invoke(messages)
+    result = llm.invoke("Explain the concept of quantum computing in one sentence.")
+    print(f"Answer is: {result.content}")
+    return LLMResponse(response=result.content)
+    """
     try:
         messages = [
             SystemMessage(content=SYSTEM_PROMPT),
@@ -76,4 +86,5 @@ async def chat(body: ChatIn):
     finally:
         reply = f"Echo: {body.message}"
         return {"id": "abc123", "session_id": body.session_id, "reply": {"text": reply}}  # Response Path: reply.text
+    """
     
