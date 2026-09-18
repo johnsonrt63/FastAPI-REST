@@ -40,7 +40,6 @@ class LLMRequest(BaseModel):
         description="Optional system prompt",
     )
 
-
 class LLMResponse(BaseModel):
     response: str
 
@@ -58,22 +57,21 @@ def verify_api_key(x_api_key: str = Header(..., alias="X-API-Key")):
 async def health():
     return {"status": "ok"}
 
+#@app.post("/chat", response_model=LLMResponse, dependencies=[Depends(verify_api_key)])
+#async def chat(payload: LLMRequest):
 @app.post("/chat")
-def chat(body: ChatIn):
-  reply = f"Echo: {body.message}"
-  return {"id": "abc123", "session_id": body.session_id, "reply": {"text": reply}}  # Response Path: reply.text
-
-
-@app.post("/chat2", response_model=LLMResponse, dependencies=[Depends(verify_api_key)])
-async def chat(payload: LLMRequest):
+async def chat(body: ChatIn):
     try:
         messages = [
-            SystemMessage(content=payload.system_prompt),
-            HumanMessage(content=payload.message),
+            SystemMessage(content=SYSTEM_PROMPT),
+            HumanMessage(content=body.message),
         ]
 
         result = llm.invoke(messages)
         return LLMResponse(response=result.content)
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=str(error))
+    finally:
+        reply = f"Echo: {body.message}"
+        return {"id": "abc123", "session_id": body.session_id, "reply": {"text": reply}}  # Response Path: reply.text
+    
